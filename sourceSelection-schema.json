@@ -1,7 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Source Selection Configuration Schema",
   "description": "Configuration that selects which source tables or patterns are included/excluded for the task.",
   "type": "object",
+  "required": [],
   "properties": {
     "sourceConnection": { "type": "string", "description": "Reference to the source connection variable or id." },
     "includePatterns": {
@@ -51,6 +53,5 @@
       }
     }
   },
-  "required": [],
   "additionalProperties": false
 }

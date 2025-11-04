@@ -1,9 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "dataset",
+  "title": "Dataset configuration Schema",
   "description": "Dataset metadata.",
-  "fileMatch": ["**/datasets/*.yaml", "**/datasets/*.yml"],
   "type": "object",
+  "required": ["id","type"],
   "properties": {
     "id": { "type": "string", "description": "Unique dataset id for storage dataset." },
     "type": { "type": "string", "enum": ["STORAGE","LANDING"], "description": "Dataset classification." },
@@ -75,6 +75,5 @@
       "required": ["transformedColumnsLocal"]
     }
   },
-  "required": ["id","type"],
   "additionalProperties": false
 }
