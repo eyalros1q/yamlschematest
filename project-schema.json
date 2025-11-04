@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Project Configuration Schema",
+  "description": "Schema for project configuration YAML file",
+  "type": "object",
+  "required": ["space", "type", "platformType"],
+  "properties": {
+    "eyal": {"type":"string","description":"Just a test property"},
+    "space": {
+      "type": "string",
+      "description": "The space identifier for the project"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["DATA_PIPELINE"],
+      "description": "The type of project"
+    },
+    "description": {
+      "type": "string", 
+      "description": "Free-text description of the project." 
+    },
+    "platformType": {
+      "type": "string",
+      "enum": ["SNOWFLAKE", "AZURE", "AWS", "GCP"],
+      "description": "The type of platform being used"
+    },
+    "platformConnection": {
+      "type": "string",
+      "description": "Platform connection string or reference"
+    },
+    "cloudStagingConnection": {
+      "type": "string",
+      "description": "Cloud staging connection string or reference"
+    },
+    "snowflakeStorageIntegration": { 
+      "type": "string", 
+      "description": "Optional Snowflake storage integration identifier." 
+    },
+    "artifactsNaming": {
+      "type": "object",
+      "description": "Naming conventions and prefixes/suffixes used when generating artifacts (tables, views, schemas).",
+      "properties": {
+        "suffixLiveViews": { "type": "string", "description": "Suffix applied to live view names." },
+        "suffixChangesView": { "type": "string", "description": "Suffix applied to change table/view names." },
+        "suffixCurrentView": { "type": "string", "description": "Suffix applied to current view names." },
+        "suffixHistoryViews": { "type": "string", "description": "Suffix applied to history view names." },
+        "suffixLiveHistoryViews": { "type": "string", "description": "Suffix applied to live history view names." },
+        "suffixInternalSchema": { "type": "string", "description": "Suffix used for internal schema names." },
+        "prefixHeaderColumns": { "type": "string", "description": "Prefix applied to header columns in change tables." },
+        "prefixSchema": { "type": "string", "description": "Template or prefix used when creating schemas for tasks." },
+        "defaultSchemaNameOption": { "type": "string", "enum": ["LOWER_CASE","UPPER_CASE","AS_IS"], "description": "How to format schema names by default." }
+      },
+      "required": ["defaultSchemaNameOption"],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

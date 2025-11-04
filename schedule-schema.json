@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Schedule",
+  "description": "Scheduling configuration for tasks (time-based or event-based).",
+  "type": "object",
+  "properties": {
+    "enabled": { "type": "boolean", "description": "Whether the schedule is enabled." },
+    "schedulingType": { "type": "string", "enum": ["TIME_BASED","EVENT_BASED"], "description": "Type of scheduling used." },
+    "timeBasedScheduling": {
+      "type": "object",
+      "description": "Configuration for time-based schedules (RRULE or cron-like patterns).",
+      "properties": {
+        "schedule": { "type": "array", "items": { "type": "string" }, "description": "One or more RFC-5545 RRULE strings or schedule expressions." },
+        "startDateTime": { "type": "string", "format": "date-time", "description": "Optional scheduled start datetime in ISO 8601 format (UTC recommended)." },
+        "timezone": { "type": "string", "description": "Timezone identifier for the schedule (e.g., Etc/UTC)." }
+      },
+      "required": ["schedule"],
+      "additionalProperties": false
+    },
+    "eventBasedScheduling": { "type": "object", "description": "Configuration for event-based triggers." },
+    "runOnReconnect": { "type": "string", "description": "Behavior when reconnecting (e.g., ONSCHEDULED)." },
+    "id": { "type": "string", "description": "Schedule id." },
+    "name": { "type": "string", "description": "Schedule display name." },
+    "version": { "type": "string", "description": "Schedule version used for optimistic locking." }
+  },
+  "required": ["schedulingType"],
+  "additionalProperties": false
+}

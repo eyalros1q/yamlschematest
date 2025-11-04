@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Task Configuration Schema",
+  "description": "Schema for task YAML files. Uses conditional subschemas so validation/autocomplete vary by the `type` property.",
+  "type": "object",
+  "required": ["id", "type"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Unique task identifier"
+    },
+    "type": {
+      "type": "string",
+      "description": "Task type which controls conditional properties",
+      "enum": ["STORAGE", "LANDING_SAAS_MANAGED"]
+    },
+    "description": {
+      "type": "string",
+      "description": "Free-text description of the task."
+    },
+    "artifactsLocation": {
+      "type": "object",
+      "description": "References to schema and database locations",
+      "properties": {
+        "internalSchema": { "type": "string" },
+        "taskSchema": { "type": "string" },
+        "databaseName": { "type": "string" }
+      },
+      "required": ["internalSchema", "taskSchema", "databaseName"],
+      "additionalProperties": false
+    },
+    "taskRuntime": {
+      "type": "object",
+      "description": "Runtime configuration for the task",
+      "properties": {
+        "warehouseSelection": {
+          "type": "object",
+          "properties": {
+            "warehouseName": { "type": "string" }
+          },
+          "required": ["warehouseName"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["warehouseSelection"],
+      "additionalProperties": false
+    },
+    "fullLoadOnly": { 
+      "type": "boolean", 
+      "description": "If true, the task will only perform full loads (no CDC)." 
+    }
+  },
+  "additionalProperties": true,
+
+  "allOf": [
+    {
+      "if": {
+        "properties": { "type": { "const": "STORAGE" } },
+        "required": ["type"]
+      },
+      "then": {
+        "properties": {
+          "ddlHandlingPolicy": { "type": "object" },
+          "artifactsSettings": { "type": "object" },
+          "artifactsLocation": { "type": "object" },
+          "taskRuntime": { "type": "object" },
+          "catalogIntegration": { "type": "object" },
+          "tableTypeSettings": { "type": "object" },
+          "viewType": { "type": "string" }
+        },
+        "required": []
+      }
+    },
+    {
+      "if": {
+        "properties": { "type": { "const": "LANDING_SAAS_MANAGED" } },
+        "required": ["type"]
+      },
+      "then": {
+        "properties": {
+          "artifactsInfo": { "type": "object", "description": "Settings related to artifact naming and prefixes." },
+          "errorHandling": { "type": "object", "description": "Error handling policies for data and table errors." },
+          "landingDwSettings": { "type": "object", "description": "Settings for landing into the data warehouse (db/schema references)." },
+          "landingStorageSettings": { "type": "object", "description": "Settings for landing into object storage (folders, locations)." },
+          "landingAppRuntime": { "type": "object", "description": "Runtime tuning settings for the landing app (concurrency, intervals)." },
+          "maximumLobSize": { "type": "number", "description": "Maximum LOB size in megabytes (or configured units)." },
+          "includeLobColumns": { "type": "boolean", "description": "Whether to include LOB columns in the artifact definitions." },
+          "landingType": {
+            "type": "string",
+            "description": "Landing mode for SAAS-managed landing tasks",
+            "enum": ["REPLICATE"]
+          }
+        },
+        "required": ["landingType"]
+      }
+    }
+  ]
+}

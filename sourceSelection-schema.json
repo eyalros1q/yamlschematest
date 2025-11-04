@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Configuration that selects which source tables or patterns are included/excluded for the task.",
+  "type": "object",
+  "properties": {
+    "sourceConnection": { "type": "string", "description": "Reference to the source connection variable or id." },
+    "includePatterns": {
+      "type": "array",
+      "description": "Patterns describing which upstream tables to include.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sourceProject": { "type": "string", "description": "Project id of the source." },
+          "sourceTask": { "type": "string", "description": "Task id of the source task." },
+          "tablePattern": { "type": "string", "description": "SQL-like pattern for table names (e.g., %)." },
+          "schemaPattern": { "type": "string", "description": "Pattern for schema names." },
+          "type": { "type": "string", "description": "Object type to include (TABLE/VIEW)." }
+        },
+        "additionalProperties": false
+      }
+    },
+    "excludePatterns": {
+      "type": "array",
+      "description": "Patterns describing which upstream tables to exclude.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sourceProject": { "type": "string", "description": "Project id of the source." },
+          "sourceTask": { "type": "string", "description": "Task id of the source task." },
+          "tablePattern": { "type": "string", "description": "SQL-like pattern for table names (e.g., %)." },
+          "schemaPattern": { "type": "string", "description": "Pattern for schema names." },
+          "type": { "type": "string", "description": "Object type to exclude (TABLE/VIEW)." }
+        },
+        "additionalProperties": false
+      }
+    },
+    "explicitlySelected": {
+      "type": "array",
+      "description": "Explicitly selected source tables (useful when you only want a subset).",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "description": "Table name as selected in the UI." },
+          "schema": { "type": "string", "description": "Schema name for the table in the source." },
+          "type": { "type": "string", "enum": ["TABLE","VIEW"], "description": "Whether the selected object is a TABLE or VIEW." },
+          "sourceTask": { "type": "string", "description": "the the source task reference." },
+          "sourceTableId": { "type": "string", "description": "Internal id referencing the source table mapping." }
+        },
+        "required": [],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [],
+  "additionalProperties": false
+}

@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "dataset",
+  "description": "Dataset metadata.",
+  "fileMatch": ["**/datasets/*.yaml", "**/datasets/*.yml"],
+  "type": "object",
+  "properties": {
+    "id": { "type": "string", "description": "Unique dataset id for storage dataset." },
+    "type": { "type": "string", "enum": ["STORAGE","LANDING"], "description": "Dataset classification." },
+    "inputDatasets": { "type": "array", "description": "References to upstream datasets.", "items": { "type": "object" } },
+    "datasetAttributes": { "type": "object", "description": "Attributes controlling materialization, history, live views, etc." },
+    "virtualDataset": { "type": "boolean", "description": "Whether dataset is virtual (inherited attributes possible)." },
+    "transformedTableLocal": {
+      "type": "object",
+      "description": "Local transformations to be applied to the table",
+      "properties": {
+        "transformedColumnsLocal": {
+          "type": "array",
+          "description": "List of column transformations",
+          "items": {
+            "type": "object",
+            "properties": {
+              "action": {
+                "type": "string",
+                "enum": ["DROP", "ADD"],
+                "description": "Type of transformation action"
+              },
+              "columnName": {
+                "type": "string",
+                "description": "Name of the column to transform"
+              },
+              "newDataType": {
+                "type": "object",
+                "properties": {
+                  "type": {
+                    "type": "string",
+                    "enum": ["STRING"],
+                    "description": "Data type for the new column"
+                  }
+                },
+                "required": ["type"]
+              },
+              "expression": {
+                "type": "object",
+                "properties": {
+                  "expressionStatement": {
+                    "type": "string",
+                    "description": "SQL-like expression for the transformation"
+                  },
+                  "alias": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "value": {
+                          "type": "string",
+                          "description": "Column alias or reference"
+                        }
+                      },
+                      "required": ["value"]
+                    }
+                  }
+                },
+                "required": ["expressionStatement"]
+              },
+              "addedColumnId": {
+                "type": "string",
+                "description": "Unique identifier for the added column"
+              }
+            },
+            "required": ["action", "columnName"]
+          }
+        }
+      },
+      "required": ["transformedColumnsLocal"]
+    }
+  },
+  "required": ["id","type"],
+  "additionalProperties": false
+}
