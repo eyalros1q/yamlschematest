@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "allOf": [
+    {
+      "if": { "properties": { "type": { "const": "REPLICATION" } } },
+      "then": { "$ref": "https://raw.githubusercontent.com/eyalros1q/yamlschematest/main/replicate-task-schema.json" }
+    },
+    {
+      "if": { "properties": { "type": { "const": "LAKE_LANDING" } } },
+      "then": { "$ref": "https://raw.githubusercontent.com/eyalros1q/yamlschematest/main/task-schema.json" } }
+    }
+  ]
+}
