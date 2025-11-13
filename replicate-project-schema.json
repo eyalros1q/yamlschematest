@@ -1,0 +1,55 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Replication Project Configuration",
+    "description": "Schema for project files",
+    "type": "object",
+    "properties": {
+        "exportVersion": {
+            "type": "string",
+            "description": "Version of the export format",
+            "examples": ["1.0"]
+        },
+        "name": {
+            "type": "string",
+            "description": "Project name, recommended to use variable like {{projectName}}",
+            "examples": ["{{projectName}}", "MyReplicationProject"]
+        },
+        "space": {
+            "type": "string",
+            "description": "Space ID in which the project is created, recommended to use reference like ref{project.current.spaceId}",
+            "examples": ["ref{project.current.spaceId}"]
+        },
+        "type": {
+            "type": "string",
+            "description": "Project type",
+            "enum": ["DATA_MOVEMENT"]
+        },
+        "description": {
+            "type": "string",
+            "description": "Project description",
+            "examples": ["My project"]
+        },
+        "platformType": {
+            "type": "string",
+            "description": "Target platform type",
+            "enum": ["SNOWFLAKE", "QLIK_OPEN_LAKEHOUSE"]
+        },
+        "platformConnection": {
+            "type": "string",
+            "description": "??? name/id ??? Target platform connection, recommended to use variable like {{platformConnection}}",
+            "examples": ["{{platformConnection}}"]
+        },
+        "cloudStagingConnection": {
+            "type": "string",
+            "description": "??? name/id ??? Connection reference to cloud staging area, recommended to use variable like {{cloudStagingConnection}}",
+            "examples": ["{{cloudStagingConnection}}"]
+        },
+        "snowflakeStorageIntegration": {
+            "type": "string",
+            "description": "Snowflake storage integration ???",
+            "examples": ["???"]
+        }
+    },
+    "required": ["type"],
+    "additionalProperties": false
+}

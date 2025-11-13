@@ -1,0 +1,779 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Lake Landing Task Settings Schema",
+    "description": "Schema for lake landing taskSettings.json files",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Task name",
+            "examples": ["Lake_landing_CDC", "Replication2"]
+        },
+        "id": {
+            "type": "string",
+            "description": "Unique task identifier, to be used in other tasks",
+            "examples": ["lake_landing_cdc-5ek3"]
+        },
+        "description": {
+            "type": "string",
+            "description": "Task description",
+            "examples": ["replicate1"]
+        },
+        "type": {
+            "type": "string",
+            "description": "Task type",
+            "enum": ["LAKE_LANDING","REPLICATION"]
+        },
+        "fullLoadOnly": {
+            "type": "boolean",
+            "description": "Indicates if only full load is performed (no CDC)",
+            "enum": [true, false]
+        },
+        "targetEndpoint": {
+            "type": "object",
+            "description": "Target endpoint configuration",
+            "properties": {
+                "targetConnection": {
+                    "type": "string",
+                    "description": "Target connection ID, recommended to use variable",
+                    "examples": ["{{task.lake_landing1-qhk9.targetConnection}}"]
+                },
+                "targetSchema": {
+                    "type": "string",
+                    "description": "Target schema name, recommended to use variable",
+                    "examples": ["", "{{task.lake_landing1-qhk9.targetSchema}}"]
+                },
+                "targetControlTableSchema": {
+                    "type": "string",
+                    "description": "Target control table schema name, recommended to use variable",
+                    "examples": ["", "{{task.lake_landing1-qhk9.targetControlTableSchema}}"]
+                }
+            },
+            "additionalProperties": false
+        },
+        "dataProviderType": {
+            "type": "string",
+            "description": "Data provider type. In this task type, only REPLICATE type is supported ???",
+            "enum": ["REPLICATE"]
+        },
+        "proxySettings": {
+            "type": "object",
+            "description": "Proxy settings",
+            "properties": {
+                "proxyOdbc": {
+                    "type": "boolean",
+                    "description": "Enable ODBC proxy",
+                    "enum": [true, false]
+                },
+                "proxyStorage": {
+                    "type": "boolean",
+                    "description": "Enable storage proxy",
+                    "enum": [true, false]
+                }
+            },
+            "additionalProperties": false
+        },
+        "fullLoadOptions": {
+            "type": "object",
+            "description": "Options for full load",
+            "properties": {
+                "tableExistsHandling": {
+                    "type": "string",
+                    "description": "Handling for existing tables",
+                    "enum": ["DROP_AND_CREATE", "TRUNCATE", "IGNORE"]
+                },
+                "afterFullLoadCompleted": {
+                    "type": "object",
+                    "description": "Actions after full load is completed",
+                    "properties": {
+                        "stopTask": {
+                            "type": "object",
+                            "description": "Stop task options",
+                            "properties": {
+                                "beforeCachedChanges": {
+                                    "type": "boolean",
+                                    "enum": [true, false]
+                                },
+                                "afterCachedChanges": {
+                                    "type": "boolean",
+                                    "enum": [true, false]
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "createKeyOrUniqueIndex": {
+                            "type": "boolean",
+                            "description": "Create key or unique index after full load",
+                            "enum": [true, false]
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "fullLoadOptionsTuning": {
+                    "type": "object",
+                    "description": "Tuning options for full load operations",
+                    "properties": {
+                        "maxTables": {
+                            "type": "integer",
+                            "description": "Maximum number of tables to process concurrently during full load",
+                            "examples": [5]
+                        },
+                        "consistencyTimeout": {
+                            "type": "integer",
+                            "description": "Timeout in seconds to wait for consistency during full load",
+                            "examples": [600]
+                        },
+                        "commitRate": {
+                            "type": "integer",
+                            "description": "Number of records to process before committing during full load",
+                            "examples": [10000]
+                        }
+                    },
+                    "required": ["maxTables", "consistencyTimeout", "commitRate"],
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "applyChangesOptions": {
+            "type": "object",
+            "description": "Apply changes options",
+            "properties": {
+                "changeProcessingTuning": {
+                    "type": "object",
+                    "description": "Tuning options for change processing operations",
+                    "properties": {
+                        "batchApplyEnabled": {
+                            "type": "boolean",
+                            "description": "Enable batch apply for changes",
+                            "enum": [true, false]
+                        },
+                        "applyChangesMultipleTablesConcurrently": {
+                            "type": "boolean",
+                            "description": "Apply changes to multiple tables concurrently",
+                            "enum": [true, false]
+                        },
+                        "maxTables": {
+                            "type": "integer",
+                            "description": "Maximum number of tables for concurrent change processing",
+                            "examples": [5]
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "storeChangesOptions": {
+            "type": "object",
+            "description": "Options for storing changes",
+            "properties": {
+                "changeTableHeaderColumn": {
+                    "type": "array",
+                    "description": "Header columns for change tables",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "description": "Header column ID",
+                                "enum": ["CHANGE_SEQUENCE", "CHANGE_OPERATION", "CHANGE_MASK", "STREAM_POSITION", "OPERATION", "TRANSACTION_ID", "TIMESTAMP", "PARTITION_NAME"]
+                            },
+                            "headerColumn": {
+                                "type": "string",
+                                "description": "Header column name",
+                                "enum": ["change_seq", "change_oper", "change_mask", "stream_position", "operation", "transaction_id", "timestamp", "partition_name"]
+                            },
+                            "isChecked": {
+                                "type": "boolean",
+                                "description": "Indiciates whether the column is enabled",
+                                "enum": [true, false]
+                            }
+                        },
+                        "required": ["id", "headerColumn", "isChecked"],
+                        "additionalProperties": false
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "errorHandling": {
+            "type": "object",
+            "description": "Error handling configuration",
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "truncationPolicyErrors": {
+                            "type": "string",
+                            "description": "Truncation policy errors",
+                            "enum": ["ERROR_POLICY_IGNORE_RECORD", "ERROR_POLICY_SUSPEND_TABLE", "ERROR_POLICY_STOP_TASK"]
+                        },
+                        "policyErrors": {
+                            "type": "string",
+                            "description": "Policy errors",
+                            "enum": ["ERROR_POLICY_IGNORE_RECORD", "ERROR_POLICY_SUSPEND_TABLE", "ERROR_POLICY_STOP_TASK"]
+                        },
+                        "escalationPolicy": {
+                            "type": "string",
+                            "description": "Escalation policy",
+                            "enum": ["ERROR_POLICY_SUSPEND_TABLE", "ERROR_POLICY_STOP_TASK", "ERROR_POLICY_IGNORE_RECORD"]
+                        },
+                        "escalationCount": {
+                            "type": "object",
+                            "description": "Escalation count settings",
+                            "properties": {
+                                "isChecked": {
+                                    "type": "boolean",
+                                    "description": "Is escalation count checked",
+                                    "enum": [true, false]
+                                },
+                                "value": {
+                                    "type": "integer",
+                                    "description": "Escalation count value",
+                                    "examples": [50]
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "tableError": {
+                    "type": "object",
+                    "properties": {
+                        "policyErrors": {
+                            "type": "string",
+                            "description": "Table error policy errors",
+                            "enum": ["ERROR_POLICY_SUSPEND_TABLE", "ERROR_POLICY_STOP_TASK", "ERROR_POLICY_IGNORE_RECORD"]
+                        },
+                        "escalationPolicy": {
+                            "type": "string",
+                            "description": "Table error escalation policy",
+                            "enum": ["ERROR_POLICY_STOP_TASK", "ERROR_POLICY_SUSPEND_TABLE", "ERROR_POLICY_IGNORE_RECORD"]
+                        },
+                        "escalationCount": {
+                            "type": "object",
+                            "description": "Table error escalation count",
+                            "properties": {
+                                "isChecked": {
+                                    "type": "boolean",
+                                    "description": "Is table error escalation count checked",
+                                    "enum": [true, false]
+                                },
+                                "value": {
+                                    "type": "integer",
+                                    "description": "Table error escalation count value",
+                                    "examples": [50]
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "retryCount": {
+                            "type": "integer",
+                            "description": "Table error retry count",
+                            "examples": [3]
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "environmental": {
+                    "type": "object",
+                    "properties": {
+                        "interval": {
+                            "type": "integer",
+                            "description": "Environmental interval",
+                            "examples": [5]
+                        },
+                        "maximumRetryCount": {
+                            "type": "object",
+                            "description": "Maximum retry count settings",
+                            "properties": {
+                                "isChecked": {
+                                    "type": "boolean",
+                                    "description": "Is maximum retry count checked",
+                                    "enum": [true, false]
+                                },
+                                "value": {
+                                    "type": "integer",
+                                    "description": "Maximum retry count value",
+                                    "examples": [-1]
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "maximumRetrySettings": {
+                            "type": "object",
+                            "description": "Maximum retry settings",
+                            "properties": {
+                                "maximumRetry": {
+                                    "type": "string",
+                                    "description": "Maximum retry setting",
+                                    "examples": ["ALWAYS"]
+                                },
+                                "count": {
+                                    "type": "integer",
+                                    "description": "Maximum retry count",
+                                    "examples": [0]
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "maximumRetryInterval": {
+                            "type": "object",
+                            "description": "Maximum retry interval settings",
+                            "properties": {
+                                "isChecked": {
+                                    "type": "boolean",
+                                    "description": "Is maximum retry interval checked",
+                                    "enum": [true, false]
+                                },
+                                "value": {
+                                    "type": "integer",
+                                    "description": "Maximum retry interval value",
+                                    "examples": [1800]
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "metadata": {
+            "type": "object",
+            "description": "Metadata and control table settings",
+            "properties": {
+                "controlTableSelection": {
+                    "type": "array",
+                    "description": "Control table selection settings",
+                    "items": {
+                        "type": "object",
+                        "description": "Control table selection item",
+                        "properties": {
+                            "tableId": {
+                                "type": "string",
+                                "description": "control table ID",
+                                "enum": ["APPLY_EXCEPTIONS", "REPLICATION_STATUS", "SUSPENDED_TABLES", "REPLICATION_HISTORY", "CHANGE_DATA_PARTITIONS", "DDL_HISTORY"]
+                            },
+                            "targetName": {
+                                "type": "string",
+                                "description": "Control table target name",
+                                "enum": ["attrep_apply_exceptions", "attrep_status", "attrep_suspended_tables", "attrep_history", "attrep_cdc_partitions", "attrep_ddl_history"]
+                            },
+                            "isChecked": {
+                                "type": "boolean",
+                                "description": "Indicates if the control table is checked",
+                                "enum": [true, false]
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "jsonHandling": {
+                    "type": "object",
+                    "description": "JSON handling settings",
+                    "properties": {
+                        "automaticallyDiscoverJsonColumns": {
+                            "type": "boolean",
+                            "description": "Enable automatic discovery of JSON columns",
+                            "enum": [true, false]
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "changeProcessingTuning": {
+            "type": "object",
+            "description": "Change processing tuning",
+            "properties": {
+                "transactionTuning": {
+                    "type": "object",
+                    "description": "Transaction tuning settings",
+                    "properties": {
+                        "cacheSize": {
+                            "type": "integer",
+                            "description": "Transaction cache size",
+                            "examples": [50]
+                        },
+                        "transactionTotalMemory": {
+                            "type": "object",
+                            "description": "Transaction total memory settings",
+                            "properties": {
+                                "isChecked": {
+                                    "type": "boolean",
+                                    "description": "Enable total memory for transaction",
+                                    "enum": [true, false]
+                                },
+                                "value": {
+                                    "type": "integer",
+                                    "description": "Transaction total memory value",
+                                    "examples": [1024]
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "transactionDuration": {
+                            "type": "object",
+                            "description": "Transaction duration settings",
+                            "properties": {
+                                "isChecked": {
+                                    "type": "boolean",
+                                    "description": "Enable transaction duration setting",
+                                    "enum": [true, false]
+                                },
+                                "value": {
+                                    "type": "integer",
+                                    "description": "Transaction duration value",
+                                    "examples": [60]
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "offloadTransactions": {
+                            "type": "object",
+                            "description": "Offload transactions settings",
+                            "properties": {
+                                "storeRecoveryData": {
+                                    "type": "boolean",
+                                    "description": "Enable storing recovery data for offloaded transactions",
+                                    "enum": [true, false]
+                                },
+                                "applyUsingMerge": {
+                                    "type": "boolean",
+                                    "description": "Enable applying changes using merge for offloaded transactions",
+                                    "enum": [true, false]
+                                },
+                                "optimizeInserts": {
+                                    "type": "boolean",
+                                    "description": "Enable optimization of inserts for offloaded transactions",
+                                    "enum": [true, false]
+                                },
+                                "deleteAndInsertOnPkUpdate": {
+                                    "type": "boolean",
+                                    "description": "Enable delete and insert on primary key update for offloaded transactions",
+                                    "enum": [true, false]
+                                },
+                                "deleteAsTombstone": {
+                                    "type": "boolean",
+                                    "description": "Enable delete as tombstone for offloaded transactions",
+                                    "enum": [true, false]
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "transactionalApply": {
+                    "type": "object",
+                    "description": "Transactional apply settings",
+                    "properties": {
+                        "transactionMinChanges": {
+                            "type": "integer",
+                            "description": "Minimum number of changes per transaction",
+                            "examples": [1000]
+                        },
+                        "batchTransactionsMaxTime": {
+                            "type": "integer",
+                            "description": "Maximum time for batch transactions",
+                            "examples": [1]
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "characterSubstitution": {
+            "type": "object",
+            "description": "Character substitution settings",
+            "properties": {
+                "sourceTargetCharacters": {
+                    "type": "array",
+                    "description": "Source and target characters for substitution",
+                    "items": {
+                        "type": "string",
+                        "description": "Character for substitution"
+                    }
+                },
+                "validationSet": {
+                    "type": "object",
+                    "description": "Validation set settings",
+                    "properties": {
+                        "substituteCharacter": {
+                            "type": "integer",
+                            "description": "Substitute character value"
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "moreOptions": {
+            "type": "array",
+            "description": "Additional options",
+            "items": {
+                "type": "object",
+                "description": "Additional option item"
+            }
+        },
+        "fileAttributes": {
+            "type": "object",
+            "description": "File attributes",
+            "properties": {
+                "general": {
+                    "type": "object",
+                    "properties": {
+                        "format": {
+                            "type": "string",
+                            "description": "File format",
+                            "examples": ["CSV"]
+                        },
+                        "fieldDelimiter": {
+                            "type": "string",
+                            "description": "Field delimiter"
+                        },
+                        "nullValue": {
+                            "type": "string",
+                            "description": "Null value representation"
+                        },
+                        "recordDelimiter": {
+                            "type": "string",
+                            "description": "Record delimiter"
+                        },
+                        "quoteCharacter": {
+                            "type": "string",
+                            "description": "Quote character"
+                        },
+                        "quoteEscapeCharacter": {
+                            "type": "string",
+                            "description": "Quote escape character"
+                        },
+                        "maxFileSize": {
+                            "type": "integer",
+                            "description": "Maximum file size"
+                        },
+                        "parquetMaxLobSize": {
+                            "type": "integer",
+                            "description": "Parquet max LOB size"
+                        },
+                        "parquetTimeStampUnit": {
+                            "type": "string",
+                            "description": "Parquet timestamp unit"
+                        },
+                        "parquetVersion": {
+                            "type": "string",
+                            "description": "Parquet version"
+                        },
+                        "compressFileUsing": {
+                            "type": "string",
+                            "description": "Compression type"
+                        },
+                        "addMetadataHeader": {
+                            "type": "object",
+                            "description": "Add metadata header settings",
+                            "properties": {
+                                "withColumnName": {
+                                    "type": "boolean",
+                                    "description": "Add column name to metadata header",
+                                    "enum": [true, false]
+                                },
+                                "withDataTypes": {
+                                    "type": "boolean",
+                                    "description": "Add data types to metadata header",
+                                    "enum": [true, false]
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "changeProcessing": {
+                    "type": "object",
+                    "description": "Change processing settings",
+                    "properties": {
+                        "applyWhenFullSizeReaches": {
+                            "type": "integer",
+                            "description": "Apply changes when full size reaches value"
+                        },
+                        "applyWhenElapsedTimeReaches": {
+                            "type": "integer",
+                            "description": "Apply changes when elapsed time reaches value"
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "metadataFiles": {
+                    "type": "object",
+                    "description": "Metadata files settings",
+                    "properties": {
+                        "createInTargetFolder": {
+                            "type": "boolean",
+                            "description": "Create metadata files in target folder",
+                            "enum": [true, false]
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "ddlHandlingPolicy": {
+            "type": "object",
+            "description": "DDL handling policy",
+           "properties": {
+                "addColumn": {
+                    "type": "string",
+                    "description": "Policy for adding columns",
+                    "enum": ["APPLY_TO_TARGET"]
+                },
+                "changeColumnType": {
+                    "type": "string",
+                    "description": "Policy for changing column type",
+                    "enum": ["APPLY_TO_TARGET"]
+                },
+                "renameTable": {
+                    "type": "string",
+                    "description": "Policy for renaming tables",
+                    "enum": ["SUSPEND_TABLE"]
+                },
+                "renameColumn": {
+                    "type": "string",
+                    "description": "Policy for renaming columns",
+                    "enum": ["APPLY_TO_TARGET"]
+                },
+                "dropTable": {
+                    "type": "string",
+                    "description": "Policy for dropping tables",
+                    "enum": ["APPLY_TO_TARGET"]
+                },
+                "dropColumn": {
+                    "type": "string",
+                    "description": "Policy for dropping columns",
+                    "enum": ["APPLY_TO_TARGET"]
+                },
+                "truncateTable": {
+                    "type": "string",
+                    "description": "Policy for truncating tables",
+                    "enum": ["APPLY_TO_TARGET"]
+                },
+                "createTable": {
+                    "type": "string",
+                    "description": "Policy for creating tables",
+                    "enum": ["APPLY_TO_TARGET"]
+                }
+            },
+            "additionalProperties": false
+        },
+        "artifactsInfo": {
+            "type": "object",
+            "description": "Artifacts information",
+            "properties": {
+                "prefixForAllTablesAndViews": {
+                    "type": "string",
+                    "description": "Prefix for all tables and views",
+                    "examples": [""]
+                }
+            },
+            "additionalProperties": false
+        },
+        "landingDwSettings": {
+            "type": "object",
+            "description": "Landing data warehouse settings",
+            "properties": {
+                "landingArtifactsLocation": {
+                    "type": "object",
+                    "description": "Landing artifacts location settings",
+                    "properties": {
+                        "dataAssetSchema": {
+                            "type": "string",
+                            "description": "Data asset schema",
+                            "examples": ["lake_landing1_cdc"]
+                        },
+                        "database": {
+                            "type": "string",
+                            "description": "Database name, recommended to use variable",
+                            "examples": ["{{task.lake_landing1_cdc-qhk-.databaseName}}"]
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "landingStorageSettings": {
+            "type": "object",
+            "description": "Landing storage settings",
+            "properties": {
+                "folderLocationType": {
+                    "type": "string",
+                    "description": "Folder location type",
+                    "enum": ["DATA_ASSET_NAME"]
+                },
+                "specificFolder": {
+                    "type": "string",
+                    "description": "Specific folder"
+                }
+            },
+            "additionalProperties": false
+        },
+        "landingAppRuntime": {
+            "type": "object",
+            "description": "Landing app runtime settings",
+            "properties": {
+                "tableLoadInParallel": {
+                    "type": "integer",
+                    "description": "Number of tables to load in parallel",
+                    "examples": [5]
+                },
+                "changeProcessingInterval": {
+                    "type": "integer",
+                    "description": "Change processing interval",
+                    "examples": [60]
+                },
+                "sourceCdcFetchIntervalMinutes": {
+                    "type": "integer",
+                    "description": "CDC fetch interval in minutes",
+                    "examples": [60]
+                },
+                "initialLoadMode": {
+                    "type": "string",
+                    "description": "Initial load mode",
+                    "enum": ["useCache"]
+                },
+                "workloadExecutionEngine": {
+                    "type": "object",
+                    "description": "Workload execution engine settings",
+                    "properties": {
+                        "engineType": {
+                            "type": "string",
+                            "description": "Workload execution engine type",
+                            "enum": ["DEFAULT"]
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "maximumLobSize": {
+            "type": "integer",
+            "description": "Maximum LOB size",
+            "examples": [8]
+        },
+        "includeLobColumns": {
+            "type": "boolean",
+            "description": "Include LOB columns",
+            "enum": [true, false]
+        }
+    },
+    "additionalProperties": false,
+    "required": []
+}

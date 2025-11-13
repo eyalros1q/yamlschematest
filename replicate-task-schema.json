@@ -1,0 +1,871 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Replication Task Configuration - Replicate",
+    "description": "Schema for task files",
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "description": "Task name",
+            "examples": ["Lake_landing_CDC", "Replication2"]
+        },
+        "id": {
+            "type": "string",
+            "description": "Unique task identifier, to be used in other tasks",
+            "examples": ["lake_landing_cdc-5ek3"]
+        },
+        "description": {
+            "type": "string",
+            "description": "Task description",
+            "examples": ["replicate1"]
+        },
+        "type": {
+            "type": "string",
+            "description": "Task type",
+            "enum": ["LAKE_LANDING","REPLICATION"]
+        },
+        "fullLoadOnly": {
+            "type": "boolean",
+            "description": "Indicates if only full load is performed (no CDC)",
+            "enum": [true, false]
+        },
+        "targetEndpoint": {
+            "type": "object",
+            "description": "Target endpoint configuration",
+            "properties": {
+                "targetConnection": {
+                    "type": "string",
+                    "description": "Target connection ID, recommended to use variable",
+                    "examples": ["{{task.replication2-jzn9.targetConnection}}"]
+                },
+                "targetSchema": {
+                    "type": "string",
+                    "description": "Target schema name, recommended to use variable",
+                    "examples": ["", "{{task.replication2-jzn9.targetSchema}}"]
+                },
+                "targetStorageConnection": {
+                    "type": "string",
+                    "description": "Target storage connection ID, recommended to use variable",
+                    "examples": ["{{task.replication2-jzn9.targetStorageConnection}}"]
+                },
+                "targetControlTableSchema": {
+                    "type": "string",
+                    "description": "Target control table schema name, recommended to use variable",
+                    "examples": ["", "{{task.replication2-jzn9.targetControlTableSchema}}"]
+                }
+            },
+            "required": ["targetConnection", "targetSchema", "targetStorageConnection", "targetControlTableSchema"],
+            "additionalProperties": false
+        },
+        "dataProviderType": {
+            "type": "string",
+            "description": "Data provider type. In this task type, only REPLICATE type is supported ???",
+            "enum": ["REPLICATE"]
+        },
+        "replicationAppRuntime": {
+            "type": "object",
+            "description": "Replication runtime settings",
+            "properties": {
+                "sourceCdcFetchIntervalMinutes": {
+                    "type": "integer",
+                    "description": "Interval in minutes for CDC fetch",
+                    "examples": [15, 60]
+                },
+                "initialLoadMode": {
+                    "type": "string",
+                    "description": "Initial load mode",
+                    "enum": ["useCache"]
+                }
+            },
+            "additionalProperties": false
+        },
+        "proxySettings": {
+            "type": "object",
+            "description": "Proxy settings",
+            "properties": {
+                "proxyOdbc": {
+                    "type": "boolean",
+                    "description": "Enable ODBC proxy",
+                    "enum": [true, false]
+                },
+                "proxyStorage": {
+                    "type": "boolean",
+                    "description": "Enable storage proxy",
+                    "enum": [true, false]
+                }
+            },
+            "additionalProperties": false
+        },
+        "taskSettings": {
+            "type": "object",
+            "description": "Task-specific settings",
+            "properties": {
+                "fullLoad": {
+                    "type": "boolean",
+                    "description": "Enable full load",
+                    "enum": [true, false]
+                },
+                "applyChanges": {
+                    "type": "boolean",
+                    "description": "Apply changes after full load",
+                    "enum": [true, false]
+                },
+                "storeChanges": {
+                    "type": "boolean",
+                    "description": "Store changes after full load",
+                    "enum": [true, false]
+                }
+            },
+            "additionalProperties": false
+        },
+        "fullLoadOptions": {
+            "type": "object",
+            "description": "Options for full load",
+            "properties": {
+                "tableExistsHandling": {
+                    "type": "string",
+                    "description": "Handling for existing tables",
+                    "enum": ["DROP_AND_CREATE", "TRUNCATE", "IGNORE"]
+                },
+                "afterFullLoadCompleted": {
+                    "type": "object",
+                    "description": "Actions after full load is completed",
+                    "properties": {
+                        "stopTask": {
+                            "type": "object",
+                            "description": "Stop task options",
+                            "properties": {
+                                "beforeCachedChanges": {
+                                    "type": "boolean",
+                                    "enum": [true, false]
+                                },
+                                "afterCachedChanges": {
+                                    "type": "boolean",
+                                    "enum": [true, false]
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "createKeyOrUniqueIndex": {
+                            "type": "boolean",
+                            "description": "Create key or unique index after full load",
+                            "enum": [true, false]
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "fullLoadOptionsTuning": {
+                    "type": "object",
+                    "description": "Tuning options for full load operations",
+                    "properties": {
+                        "maxTables": {
+                            "type": "integer",
+                            "description": "Maximum number of tables to process concurrently during full load",
+                            "examples": [5]
+                        },
+                        "consistencyTimeout": {
+                            "type": "integer",
+                            "description": "Timeout in seconds to wait for consistency during full load",
+                            "examples": [600]
+                        },
+                        "commitRate": {
+                            "type": "integer",
+                            "description": "Number of records to process before committing during full load",
+                            "examples": [10000]
+                        }
+                    },
+                    "required": ["maxTables", "consistencyTimeout", "commitRate"],
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "applyChangesOptions": {
+            "type": "object",
+            "description": "Options for applying changes",
+            "properties": {
+                "sourceTableDropped": {
+                    "type": "boolean",
+                    "description": "Indicates if the source table was dropped",
+                    "enum": [true, false]
+                },
+                "sourceTableTruncated": {
+                    "type": "boolean",
+                    "description": "Indicates if the source table was truncated",
+                    "enum": [true, false]
+                },
+                "sourceTableAltered": {
+                    "type": "boolean",
+                    "description": "Indicates if the source table was altered",
+                    "enum": [true, false]
+                },
+                "changeProcessingTuning": {
+                    "type": "object",
+                    "description": "Change processing tuning options",
+                    "properties": {
+                        "batchApplyEnabled": {
+                            "type": "boolean",
+                            "description": "Enable batch apply for changes",
+                            "enum": [true, false]
+                        },
+                        "applyChangesMultipleTablesConcurrently": {
+                            "type": "boolean",
+                            "description": "Apply changes to multiple tables concurrently",
+                            "enum": [true, false]
+                        },
+                        "maxTables": {
+                            "type": "integer",
+                            "description": "Maximum number of tables for concurrent change processing",
+                            "examples": [5]
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "storeChangesOptions": {
+            "type": "object",
+            "description": "Options for storing changes",
+            "properties": {
+                "ddlOptions": {
+                    "type": "boolean",
+                    "description": "Enable DDL options for storing changes",
+                    "enum": [true, false]
+                },
+                "onUpdate": {
+                    "type": "boolean",
+                    "description": "Enable update handling for storing changes",
+                    "enum": [true, false]
+                },
+                "changeTableCreation": {
+                    "type": "string",
+                    "description": "Change table creation policy",
+                    "enum": ["DROP_AND_CREATE", "TRUNCATE", "IGNORE"]
+                },
+                "suffix": {
+                    "type": "string",
+                    "description": "Suffix for change tables",
+                    "examples": ["__ct"]
+                },
+                "headerColumnPrefix": {
+                    "type": "string",
+                    "description": "Prefix for header columns",
+                    "examples": ["header__"]
+                },
+                "changeDataPartitioning": {
+                    "type": "object",
+                    "description": "Change data partitioning settings",
+                    "properties": {
+                        "mode": {
+                            "type": "string",
+                            "description": "Partitioning mode",
+                            "enum": ["PARTITION_OFF"]
+                        },
+                        "partitionEvery": {
+                            "type": "integer",
+                            "description": "Partition every N units",
+                            "examples": [60]
+                        },
+                        "partitionBaseTime": {
+                            "type": "string",
+                            "description": "Base time for partitioning",
+                            "examples": ["2025-11-13T07:06:29.262Z"]
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "changeTableHeaderColumn": {
+                    "type": "array",
+                    "description": "Header columns for change tables",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "description": "Header column ID",
+                                "enum": ["CHANGE_SEQUENCE", "CHANGE_OPERATION", "CHANGE_MASK", "STREAM_POSITION", "OPERATION", "TRANSACTION_ID", "TIMESTAMP", "PARTITION_NAME"]
+                            },
+                            "headerColumn": {
+                                "type": "string",
+                                "description": "Header column name",
+                                "enum": ["change_seq", "change_oper", "change_mask", "stream_position", "operation", "transaction_id", "timestamp", "partition_name"]
+                            },
+                            "isChecked": {
+                                "type": "boolean",
+                                "description": "Indiciates whether the column is enabled",
+                                "enum": [true, false]
+                            }
+                        },
+                        "required": ["id", "headerColumn", "isChecked"],
+                        "additionalProperties": false
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "errorHandling": {
+            "type": "object",
+            "description": "Error handling configuration",
+            "properties": {
+                "applyConflicts": {
+                    "type": "object",
+                    "description": "Apply conflicts error handling",
+                    "properties": {
+                        "insertPolicy": { 
+                            "type": "string", 
+                            "description": "Insert policy",
+                            "enum": ["ERROR_POLICY_LOG_ERROR", "ERROR_POLICY_IGNORE_RECORD", "ERROR_POLICY_SUSPEND_TABLE"] 
+                        },
+                        "updatePolicy": { 
+                            "type": "string", 
+                            "description": "Update policy",
+                            "enum": ["ERROR_POLICY_LOG_ERROR", "ERROR_POLICY_IGNORE_RECORD", "ERROR_POLICY_SUSPEND_TABLE"] 
+                        },
+                        "deletePolicy": { 
+                            "type": "string", 
+                            "description": "Delete policy",
+                            "enum": ["ERROR_POLICY_LOG_ERROR", "ERROR_POLICY_IGNORE_RECORD", "ERROR_POLICY_SUSPEND_TABLE"] 
+                        },
+                        "escalationCount": {
+                            "type": "object",
+                            "description": "Escalation count",
+                            "properties": {
+                                "isChecked": { 
+                                    "type": "boolean", 
+                                    "description": "Is escalation count checked",
+                                    "enum": [true,false] 
+                                },
+                                "value": { 
+                                    "type": "integer", 
+                                    "description": "Escalation count value",
+                                    "examples": [50] 
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "escalationPolicy": { 
+                            "type": "string", 
+                            "description": "Escalation policy",
+                            "enum": ["ERROR_POLICY_LOG_ERROR", "ERROR_POLICY_SUSPEND_TABLE", "ERROR_POLICY_STOP_TASK"] 
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "data": {
+                    "type": "object",
+                    "properties": {
+                        "truncationPolicyErrors": { 
+                            "type": "string", 
+                            "description": "Truncation policy errors",
+                            "enum": ["ERROR_POLICY_LOG_ERROR", "ERROR_POLICY_SUSPEND_TABLE"]
+                        },
+                        "policyErrors": { 
+                            "type": "string", 
+                            "description": "Policy errors",
+                            "enum": ["ERROR_POLICY_IGNORE_RECORD", "ERROR_POLICY_SUSPEND_TABLE"]
+                        },
+                        "escalationPolicy": { 
+                            "type": "string", 
+                            "description": "Escalation policy",
+                            "examples": ["ERROR_POLICY_SUSPEND_TABLE"] 
+                        },
+                        "escalationCount": {
+                            "type": "object",
+                            "description": "Escalation count",
+                            "properties": {
+                                "isChecked": { 
+                                    "type": "boolean", 
+                                    "description": "Is escalation count checked",
+                                    "examples": [false] 
+                                },
+                                "value": { 
+                                    "type": "integer", 
+                                    "description": "Escalation count value",
+                                    "examples": [50] 
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "tableError": {
+                    "type": "object",
+                    "properties": {
+                        "policyErrors": { 
+                            "type": "string", 
+                            "description": "Table error policy errors",
+                            "examples": ["ERROR_POLICY_SUSPEND_TABLE"] 
+                        },
+                        "escalationPolicy": { 
+                            "type": "string", 
+                            "description": "Table error escalation policy",
+                            "examples": ["ERROR_POLICY_STOP_TASK"] 
+                        },
+                        "escalationCount": {
+                            "type": "object",
+                            "description": "Table error escalation count",
+                            "properties": {
+                                "isChecked": { 
+                                    "type": "boolean", 
+                                    "description": "Is table error escalation count checked",
+                                    "enum": [true,false] 
+                                },
+                                "value": { 
+                                    "type": "integer", 
+                                    "description": "Table error escalation count value",
+                                    "examples": [50] 
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "retryCount": { 
+                            "type": "integer", 
+                            "description": "Table error retry count",
+                            "examples": [3] 
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "environmental": {
+                    "type": "object",
+                    "properties": {
+                        "interval": { 
+                            "type": "integer", 
+                            "description": "Environmental interval",
+                            "examples": [5] 
+                        },
+                        "maximumRetryCount": {
+                            "type": "object",
+                            "properties": {
+                                "isChecked": { 
+                                    "type": "boolean", 
+                                    "description": "Is maximum retry count checked",
+                                    "enum": [true, false] 
+                                },
+                                "value": { 
+                                    "type": "integer", 
+                                    "description": "Maximum retry count value",
+                                    "examples": [-1]
+                                    }
+                            },
+                            "additionalProperties": false
+                        },
+                        "maximumRetrySettings": {
+                            "type": "object",
+                            "description": "Maximum retry settings",
+                            "properties": {
+                                "maximumRetry": { 
+                                    "type": "string", 
+                                    "description": "Maximum retry setting",
+                                    "enum": ["ALWAYS"] 
+                                },
+                                "value": { 
+                                    "type": "integer", 
+                                    "description": "Maximum retry count",
+                                    "count": [0]
+                                    }
+                            },
+                            "additionalProperties": false
+                        },
+                        "maximumRetryInterval": {
+                            "type": "object",
+                            "properties": {
+                                "isChecked": { 
+                                    "type": "boolean", 
+                                    "description": "Is maximum retry interval checked",
+                                    "enum": [true, false] 
+                                },
+                                "value": { 
+                                    "type": "integer", 
+                                    "description": "Maximum retry interval value",
+                                    "examples": [1800]
+                                    }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "metadata": {
+            "type": "object",
+            "description": "Metadata and control table settings",
+            "properties": {
+                "lobHandling": {
+                    "type": "object",
+                    "description": "LOB handling settings",
+                    "properties": {
+                        "maximumLobSize": {
+                            "type": "integer",
+                            "description": "Maximum size for LOB columns",
+                            "examples": [8]
+                        },
+                        "lobChunkSize": {
+                            "type": "integer",
+                            "description": "Chunk size for LOB columns",
+                            "examples": [64]
+                        },
+                        "optimizeLobSizeEnabled": {
+                            "type": "boolean",
+                            "description": "Enable optimization for LOB size",
+                            "enum": [true,false]
+                        },
+                        "optimizeLobSize": {
+                            "type": "integer",
+                            "description": "Optimization value for LOB size",
+                            "examples": [1]
+                        },
+                        "optimizeLobSizeHandlingUnit": {
+                            "type": "string",
+                            "description": "Unit for LOB size optimization",
+                            "enum": ["KILOBYTE"]
+                        },
+                        "lobColumns": {
+                            "type": "string",
+                            "description": "LOB columns handling policy",
+                            "enum": ["REPLICATE_LIMITED_LOB_COLUMN"]
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "targetControlTableTablespace": {
+                    "type": "string",
+                    "description": "Target tablespace for control tables",
+                    "examples": [""]
+                },
+                "targetControlTableIndexesTablespace": {
+                    "type": "string",
+                    "description": "Target tablespace for control table indexes",
+                    "examples": [""]
+                },
+                "historyTimeSlot": {
+                    "type": "integer",
+                    "description": "Time slot for history retention",
+                    "examples": [5]
+                },
+                "targetControlTableSchema": {
+                    "type": "string",
+                    "description": "Target schema for control tables",
+                    "examples": ["{{task.replication1_reload-jc41.targetControlTableSchema}}"]
+                },
+                "controlTableSelection": {
+                    "type": "array",
+                    "description": "Control table selection settings",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "tableId": {
+                                "type": "string",
+                                "description": "control table ID",
+                                "enum": ["APPLY_EXCEPTIONS", "REPLICATION_STATUS", "SUSPENDED_TABLES", "REPLICATION_HISTORY", "CHANGE_DATA_PARTITIONS", "DDL_HISTORY"]
+                            },
+                            "targetName": {
+                                "type": "string",
+                                "description": "Control table target name",
+                                "enum": ["attrep_apply_exceptions", "attrep_status", "attrep_suspended_tables", "attrep_history", "attrep_cdc_partitions", "attrep_ddl_history"]
+                            },
+                            "isChecked": {
+                                "type": "boolean",
+                                "description": "Indicates if the control table is checked",
+                                "enum": [true, false]
+                            }
+                        },
+                        "additionalProperties": false
+                    }
+                },
+                "jsonHandling": {
+                    "type": "object",
+                    "description": "JSON handling settings",
+                    "properties": {
+                        "automaticallyDiscoverJsonColumns": {
+                            "type": "boolean",
+                            "description": "Enable automatic discovery of JSON columns",
+                            "enum": [true, false]
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "changeProcessingTuning": {
+            "type": "object",
+            "description": "Batch and transaction tuning options",
+            "properties": {
+                "batchApply": {
+                    "type": "object",
+                    "description": "Batch apply settings",
+                    "properties": {
+                        "applyIntervalMin": {
+                            "type": "integer",
+                            "description": "Minimum interval for batch apply",
+                            "examples": [1]
+                        },
+                        "applyIntervalMax": {
+                            "type": "integer",
+                            "description": "Maximum interval for batch apply",
+                            "examples": [30]
+                        },
+                        "forceApplyMemory": {
+                            "type": "integer",
+                            "description": "Memory allocated for force apply in batch operations",
+                            "examples": [500]
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "batchSplitSize": {
+                    "type": "object",
+                    "description": "Batch split size settings",
+                    "properties": {
+                        "isChecked": {
+                            "type": "boolean",
+                            "description": "Indicates if batch split size is enabled",
+                            "enum": [true, false]
+                        },
+                        "value": {
+                            "type": "integer",
+                            "description": "Value for batch split size",
+                            "examples": [10000]
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "transactionTuning": {
+                    "type": "object",
+                    "description": "Transaction tuning settings",
+                    "properties": {
+                        "cacheSize": {
+                            "type": "integer",
+                            "description": "Transaction cache size",
+                            "examples": [50]
+                        },
+                        "transactionTotalMemory": {
+                            "type": "object",
+                            "properties": {
+                                "isChecked": {
+                                    "type": "boolean",
+                                    "description": "Enable total memory for transaction",
+                                    "enum": [true, false]
+                                },
+                                "value": {
+                                    "type": "integer",
+                                    "description": "Transaction total memory value",
+                                    "examples": [1024]
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "transactionDuration": {
+                            "type": "object",
+                            "properties": {
+                                "isChecked": {
+                                    "type": "boolean",
+                                    "description": "Enable transaction duration setting",
+                                    "enum": [true, false]
+                                },
+                                "value": {
+                                    "type": "integer",
+                                    "description": "Transaction duration value",
+                                    "examples": [60]
+                                }
+                            },
+                            "additionalProperties": false
+                        },
+                        "offloadTransactions": {
+                            "type": "object",
+                            "properties": {
+                                "storeRecoveryData": {
+                                    "type": "boolean",
+                                    "description": "Enable storing recovery data for offloaded transactions",
+                                    "enum": [true, false]
+                                },
+                                "applyUsingMerge": {
+                                    "type": "boolean",
+                                    "description": "Enable applying changes using merge for offloaded transactions",
+                                    "enum": [true, false]
+                                },
+                                "optimizeInserts": {
+                                    "type": "boolean",
+                                    "description": "Enable optimization of inserts for offloaded transactions",
+                                    "enum": [true, false]
+                                },
+                                "deleteAndInsertOnPkUpdate": {
+                                    "type": "boolean",
+                                    "description": "Enable delete and insert on primary key update for offloaded transactions",
+                                    "enum": [true, false]
+                                },
+                                "deleteAsTombstone": {
+                                    "type": "boolean",
+                                    "description": "Enable delete as tombstone for offloaded transactions",
+                                    "enum": [true, false]
+                                }
+                            },
+                            "additionalProperties": false
+                        }
+                    },
+                    "additionalProperties": false
+                },
+                "transactionalApply": {
+                    "type": "object",
+                    "description": "Transactional apply settings",
+                    "properties": {
+                        "transactionMinChanges": {
+                            "type": "integer",
+                            "description": "Minimum number of changes per transaction",
+                            "examples": [1000]
+                        },
+                        "batchTransactionsMaxTime": {
+                            "type": "integer",
+                            "description": "Maximum time for batch transactions",
+                            "examples": [1]
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "characterSubstitution": {
+            "type": "object",
+            "description": "Character substitution settings",
+            "properties": {
+                "sourceTargetCharacters": {
+                    "type": "array",
+                    "description": "Source and target characters for substitution",
+                    "items": {
+                        "type": "string",
+                        "description": "Character for substitution"
+                    }
+                },
+                "validationSet": {
+                    "type": "object",
+                    "description": "Validation set settings",
+                    "properties": {
+                        "substituteCharacter": {
+                            "type": "integer",
+                            "description": "Substitute character value"
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            }
+        },
+        "moreOptions": {
+            "type": "array",
+            "description": "Additional options",
+            "items": {
+                "type": "object",
+                "description": "Additional option item"
+            }
+        },
+        "fileAttributes": {
+            "type": "object",
+            "description": "File attributes",
+            "properties": {
+                "general": {
+                    "type": "object",
+                    "description": "General file attributes",
+                    "properties": {
+                        "maxFileSize": {
+                            "type": "integer",
+                            "description": "Maximum file size for file handling",
+                            "examples": [100]
+                        },
+                        "useCompression": {
+                            "type": "boolean",
+                            "description": "Enable compression for file handling",
+                            "enum": [true, false]
+                        },
+                        "loadingMethod": {
+                            "type": "string",
+                            "description": "Method used for loading files",
+                            "enum": ["BULK_LOADING"]
+                        },
+                        "filesInBatch": {
+                            "type": "integer",
+                            "description": "Number of files in each batch for file handling",
+                            "examples": [30]
+                        }
+                    },
+                    "additionalProperties": false
+                }
+            },
+            "additionalProperties": false
+        },
+        "catalogSettings": {
+            "type": "object",
+            "description": "Catalog settings",
+            "properties": {
+                "publish": {
+                    "type": "boolean",
+                    "description": "Enable publishing in catalog settings",
+                    "enum": [true, false]
+                },
+                "tags": {
+                    "type": "array",
+                    "description": "Tags for catalog settings",
+                    "items": {
+                        "type": "string",
+                        "description": "Tag value for catalog"
+                    }
+                }
+            },
+            "additionalProperties": false
+        },
+        "ddlHandlingPolicy": {
+            "type": "object",
+            "description": "DDL handling policies",
+            "properties": {
+                "addColumn": {
+                    "type": "string",
+                    "description": "Policy for adding columns",
+                    "enum": ["APPLY_TO_TARGET"]
+                },
+                "changeColumnType": {
+                    "type": "string",
+                    "description": "Policy for changing column type",
+                    "enum": ["APPLY_TO_TARGET"]
+                },
+                "renameTable": {
+                    "type": "string",
+                    "description": "Policy for renaming tables",
+                    "enum": ["SUSPEND_TABLE"]
+                },
+                "renameColumn": {
+                    "type": "string",
+                    "description": "Policy for renaming columns",
+                    "enum": ["APPLY_TO_TARGET"]
+                },
+                "dropTable": {
+                    "type": "string",
+                    "description": "Policy for dropping tables",
+                    "enum": ["APPLY_TO_TARGET"]
+                },
+                "dropColumn": {
+                    "type": "string",
+                    "description": "Policy for dropping columns",
+                    "enum": ["APPLY_TO_TARGET"]
+                },
+                "truncateTable": {
+                    "type": "string",
+                    "description": "Policy for truncating tables",
+                    "enum": ["APPLY_TO_TARGET"]
+                },
+                "createTable": {
+                    "type": "string",
+                    "description": "Policy for creating tables",
+                    "enum": ["APPLY_TO_TARGET"]
+                }
+            },
+            "additionalProperties": false
+        }
+    },
+    "additionalProperties": false,
+    "required": []
+}
+        

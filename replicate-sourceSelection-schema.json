@@ -1,0 +1,119 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Replication sourceSelection Configuration",
+	"description": "Schema for sourceSelection files",
+	"type": "object",
+	"properties": {
+		"sourceConnection": {
+			"type": "string",
+			"description": "Source connection ID, recommended to use variable",
+			"examples": ["{{task.replication2-i6bc.sourceConnection}}"]
+		},
+		"includePatterns": {
+			"type": "array",
+			"description": "List of tables/views patterns to include from the source",
+			"items": {
+				"type": "object",
+				"description": "Include pattern item",
+				"properties": {
+					"tablePattern": {
+						"type": "string",
+						"description": "Pattern for table names",
+						"examples": ["%customers"]
+					},
+					"schemaPattern": {
+						"type": "string",
+						"description": "Pattern for schema names, recommended to use variable",
+						"examples": ["%", "dbo", "{{task.replication2-jzn9:null$_$%.schemaPattern}}"]
+					},
+					"type": {
+						"type": "string",
+						"description": "Type of data object",
+						"examples": ["TABLE", "VIEW"]
+					}
+				},
+				"required": ["type", "tablePattern", "schemaPattern"],
+				"additionalProperties": false
+			},
+			"examples": [
+				[
+					{
+						"tablePattern": "%customers",
+						"schemaPattern": "dbo",
+						"type": "TABLE"
+					}
+				]
+			]
+		},
+		"excludePatterns": {
+			"type": "array",
+			"description": "List of tables/views patterns to exclude from the source",
+			"items": {
+				"type": "object",
+				"description": "Exclude pattern item",
+				"properties": {
+					"tablePattern": {
+						"type": "string",
+						"description": "Pattern for table names",
+						"examples": ["%customers"]
+					},
+					"schemaPattern": {
+						"type": "string",
+						"description": "Pattern for schema names, recommended to use variable",
+						"examples": ["%", "dbo", "{{task.replication2-jzn9:null$_$%.schemaPattern}}"]
+					},
+					"type": {
+						"type": "string",
+						"description": "Type of data object",
+						"examples": ["TABLE", "VIEW"]
+					}
+				},
+				"required": ["type", "tablePattern", "schemaPattern"],
+				"additionalProperties": false
+			},
+			"examples": [
+				[
+					{
+						"tablePattern": "%customers",
+						"schemaPattern": "dbo",
+						"type": "TABLE"
+					}
+				]
+			]
+		},
+		"explicitlySelected": {
+			"type": "array",
+			"description": "List of explicitly selected tables/views",
+			"items": {
+				"type": "object",
+				"description": "Explicitly selected item",
+				"properties": {
+					"name": {
+						"type": "string",
+						"description": "Name of the table or view",
+						"examples": ["Employees", "Categories"]
+					},
+					"schema": {
+						"type": "string",
+						"description": "Schema name, recommended to use variable",
+						"examples": ["dbo", "{{task.replication2-i6bc:null$_$dbo.schema}}"]
+					},
+					"type": {
+						"type": "string",
+						"description": "Type of data object",
+						"examples": ["TABLE", "VIEW"]
+					},
+					"sourceTableId": {
+						"type": "string",
+						"description": "Table identifier, to be used from other tasks",
+						"examples": ["$replicate$dbo_employees"]
+					}
+				},
+				"required": ["name", "schema", "type", "sourceTableId"],
+				"additionalProperties": false
+			}
+		}
+	},
+	"required": ["sourceConnection"],
+	"additionalProperties": false
+}
