@@ -7,8 +7,9 @@
     },
     {
       "if": { "properties": { "type": { "const": "LAKE_LANDING" } } },
-      "then": { "$ref": "https://raw.githubusercontent.com/eyalros1q/yamlschematest/main/task-schema.json" } 
+      "then": { "$ref": "https://raw.githubusercontent.com/eyalros1q/yamlschematest/main/lakelanding-task-schema.json" } 
     }
   ]
 }
+
 
