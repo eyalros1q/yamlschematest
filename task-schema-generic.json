@@ -11,21 +11,6 @@
     },
     {
       "properties": {
-        "name": {
-            "type": "string",
-            "description": "Task name",
-            "examples": ["Lake_landing_CDC", "Replication2"]
-        },
-        "id": {
-            "type": "string",
-            "description": "Unique task identifier, to be used in other tasks",
-            "examples": ["lake_landing_cdc-5ek3"]
-        },
-        "description": {
-            "type": "string",
-            "description": "Task description",
-            "examples": ["replicate1"]
-        },
         "type": {
             "type": "string",
             "description": "Task type",
@@ -36,5 +21,6 @@
     }
   ]
 }
+
 
 
