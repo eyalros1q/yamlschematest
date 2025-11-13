@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "properties": {
+    "type": {
+      "type": "string",
+      "description": "Task type",
+      "enum": ["REPLICATION", "LAKE_LANDING"]
+    }
+  },
+  "required": ["type"] 
+  "oneOf": [
+    {
+      "properties": { "type": { "const": "REPLICATION" } },
+      "allOf": [{ "$ref": "https://raw.githubusercontent.com/eyalros1q/yamlschematest/main/replicate-task-schema.json" }]
+    },
+    {
+      "properties": { "type": { "const": "LAKE_LANDING" } },
+      "allOf": [{ "$ref": "https://raw.githubusercontent.com/eyalros1q/yamlschematest/main/lakelanding-task-schema.json" }]
+    }
+  ]
+}
