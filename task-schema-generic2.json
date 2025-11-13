@@ -7,7 +7,7 @@
       "enum": ["REPLICATION", "LAKE_LANDING"]
     }
   },
-  "required": ["type"] ,
+  "required": ["type"],
   "oneOf": [
     {
       "properties": { "type": { "const": "REPLICATION" } },
