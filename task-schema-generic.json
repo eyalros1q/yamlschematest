@@ -8,8 +8,15 @@
     {
       "if": { "properties": { "type": { "const": "LAKE_LANDING" } } },
       "then": { "$ref": "https://raw.githubusercontent.com/eyalros1q/yamlschematest/main/lakelanding-task-schema.json" } 
+    },
+    {
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["REPLICATION", "LAKE_LANDING"] ,
+          "description": "A custom flag property"
+        }
+      }
     }
   ]
 }
-
-
