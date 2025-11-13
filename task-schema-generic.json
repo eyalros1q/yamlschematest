@@ -31,8 +31,10 @@
             "description": "Task type",
             "enum": ["LAKE_LANDING","REPLICATION"]
         }
-      }
+      },
+      "required": ["type"] 
     }
   ]
 }
+
 
