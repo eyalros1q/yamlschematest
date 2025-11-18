@@ -1,28 +1,113 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Schedule Configuration Schema",
-  "description": "Scheduling configuration for tasks (time-based or event-based).",
-  "type": "object",
-  "required": ["schedulingType"],
-  "properties": {
-    "enabled": { "type": "boolean", "description": "Whether the schedule is enabled." },
-    "schedulingType": { "type": "string", "enum": ["TIME_BASED","EVENT_BASED"], "description": "Type of scheduling used." },
-    "timeBasedScheduling": {
-      "type": "object",
-      "description": "Configuration for time-based schedules (RRULE or cron-like patterns).",
-      "properties": {
-        "schedule": { "type": "array", "items": { "type": "string" }, "description": "One or more RFC-5545 RRULE strings or schedule expressions." },
-        "startDateTime": { "type": "string", "format": "date-time", "description": "Optional scheduled start datetime in ISO 8601 format (UTC recommended)." },
-        "timezone": { "type": "string", "description": "Timezone identifier for the schedule (e.g., Etc/UTC)." }
-      },
-      "required": ["schedule"],
-      "additionalProperties": false
-    },
-    "eventBasedScheduling": { "type": "object", "description": "Configuration for event-based triggers." },
-    "runOnReconnect": { "type": "string", "description": "Behavior when reconnecting (e.g., ONSCHEDULED)." },
-    "id": { "type": "string", "description": "Schedule id." },
-    "name": { "type": "string", "description": "Schedule display name." },
-    "version": { "type": "string", "description": "Schedule version used for optimistic locking." }
-  },
-  "additionalProperties": false
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "Schedule Configuration Schema",
+	"description": "Scheduling configuration for tasks (time-based or event-based)",
+	"type": "object",
+	"required": ["schedulingType"],
+	"properties": {
+		"id": {
+			"type": "string",
+			"description": "Schedule id"
+		},
+		"name": {
+			"type": "string",
+			"description": "Schedule display name",
+			"examples": ["Schedule"]
+		},
+		"description": {
+			"type": "string",
+			"description": "Schedule description",
+			"examples": ["Time based schedule running every 6 hours"]
+		},
+		"version": {
+			"type": "string",
+			"description": "Schedule version used for optimistic locking",
+			"examples": ["1"]
+		},
+		"enabled": {
+			"type": "boolean",
+			"description": "Indicates if the schedule is enabled",
+			"enum": [true, false]
+		},
+		"schedulingType": {
+			"type": "string",
+			"description": "Type of scheduling",
+			"enum": ["TIME_BASED", "EVENT_BASED"]
+		},
+		"timeBasedScheduling": {
+			"type": "object",
+			"description": "Configuration for time-based schedules (RRULE or cron-like patterns)",
+			"properties": {
+				"schedule": {
+					"type": "array",
+					"items": {"type": "string"},
+					"description": "One or more RFC-5545 RRULE strings or schedule expressions",
+					"examples": [["RRULE:FREQ=HOURLY;INTERVAL=6;BYMINUTE=16;BYSECOND=0"]]
+				},
+				"startDateTime": {
+					"type": "string",
+					"format": "date-time",
+					"description": "Optional scheduled start datetime in ISO 8601 format (UTC recommended)",
+					"examples": ["2024-12-17T06:16:00.000Z"]
+				},
+				"endDateTime": {
+					"type": "string",
+					"format": "date-time",
+					"description": "Optional scheduled end datetime in ISO 8601 format (UTC recommended)",
+					"examples": ["2025-12-17T06:16:00.000Z"]
+				},
+				"timezone": {
+					"type": "string",
+					"description": "Timezone identifier for the schedule",
+					"examples": ["Etc/UTC"]
+				}
+			},
+			"required": ["schedule"],
+			"additionalProperties": false
+		},
+		"eventBasedScheduling": {
+			"type": "object",
+			"description": "Configuration for event-based triggers",
+			"properties": {
+				"eventSchedulingType": {
+					"type": "string",
+					"description": "Type of event-based scheduling",
+					"enum": ["ANY_INPUT_TASK","ANY_SELECTED_TASK"]
+				},
+				"triggerApps": {
+					"type": "array",
+					"examples": [[]]
+				}
+			},
+			"additionalProperties": false
+		},
+		"runOnReconnect": {
+			"type": "string",
+			"description": "Behavior when reconnecting",
+			"enum": ["ONSCHEDULED"]
+		}
+	},
+ 	"additionalProperties": false,
+	"examples": [
+		{
+			"enabled": true,
+			"schedulingType": "TIME_BASED",
+			"timeBasedScheduling": {
+				"schedule": [
+					"RRULE:FREQ=HOURLY;INTERVAL=6;BYMINUTE=16;BYSECOND=0"
+				],
+				"startDateTime": "2024-12-17T06:16:00.000Z",
+				"timezone": "Etc/UTC"
+			},
+			"eventBasedScheduling": {
+				"eventSchedulingType": "ANY_INPUT_TASK",
+				"triggerApps": []
+			},
+			"runOnReconnect": "ONSCHEDULED",
+			"id": "schedule-5ek4",
+			"name": "Schedule",
+			"description": "",
+			"version": "1"
+		}
+	]
 }
